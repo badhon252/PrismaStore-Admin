@@ -11,13 +11,13 @@ export const ModalProvider = () => {
     setIsMounted(true);
   }, []);
 
-  //? Prevents SSR issues with modal portal
-  //? To avoid hydration mismatch warning
-  if (!isMounted) return null;
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
       <StoreModal />
     </>
   );
-};
+}
