@@ -35,6 +35,7 @@ export async function POST(req: Request) {
 
   const addressString = addressComponents.filter((c) => c !== null).join(", ");
 
+  //? After a successful payment, update the order's isPaid status to true
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {
@@ -46,23 +47,47 @@ export async function POST(req: Request) {
         phone: session?.customer_details?.phone || "",
       },
       include: {
-        orderItems: true,
-      },
-    });
-
-    const productIds = order.orderItems.map((orderItem) => orderItem.productId);
-
-    await prismadb.product.updateMany({
-      where: {
-        id: {
-          in: [...productIds],
+        orderItems: {
+          include: {
+            product: true,
+          },
         },
       },
-      data: {
-        isArchived: true,
-      },
     });
-  }
 
+    const productIds = order.orderItems.map(
+      (orderItem) => orderItem.product.id,
+    );
+
+    for (const productId of productIds) {
+      const product = await prismadb.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (product) {
+        const purchasedQuantity = order.orderItems.find(
+          (orderItem) => orderItem.productId === productId,
+        )?.quantity;
+
+        if (purchasedQuantity !== undefined) {
+          const remainingQuantity = product.quantity - purchasedQuantity;
+
+          const isArchived = remainingQuantity !== 0;
+
+          await prismadb.product.updateMany({
+            where: {
+              id: {
+                in: [...productIds],
+              },
+            },
+            data: {
+              quantity: remainingQuantity,
+              isArchived,
+            },
+          });
+        }
+      }
+    }
+  }
   return new NextResponse(null, { status: 200 });
 }
