@@ -41,7 +41,7 @@
     "next": "^13.5.1",
     "next-cloudinary": "^4.21.0",
     "next-themes": "^0.2.1",
-    "postcss": "8.4.29",
+    "postcss": "8.4.31",
     "prettier": "^3.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
