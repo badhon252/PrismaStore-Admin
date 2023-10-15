@@ -21,7 +21,7 @@ export async function POST(
       sizeId,
       images,
       isFeatured,
-      isArchived,
+      // isArchived,
     } = body;
 
     if (!userId) {
@@ -77,7 +77,7 @@ export async function POST(
         price,
         quantity,
         isFeatured,
-        isArchived,
+        // isArchived,
         categoryId,
         colorId,
         sizeId,
@@ -119,7 +119,7 @@ export async function GET(
         colorId,
         sizeId,
         isFeatured: isFeatured ? true : undefined,
-        isArchived: false,
+        // isArchived: false,
       },
       include: {
         images: true,

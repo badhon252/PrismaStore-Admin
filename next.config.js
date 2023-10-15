@@ -3,17 +3,18 @@ module.exports = {
   images: {
     domains: ["res.cloudinary.com"],
   },
-  async headers() {
-    return [
-      {
-        source: "/api/checkout", // Adjust the source path accordingly
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: "script-src 'self' https://pay.google.com 'unsafe-inline'",
-          },
-        ],
-      },
-    ];
-  },
+  // async headers() {
+  //   return [
+  //     {
+  //       source: "/(.*)",
+  //       headers: [
+  //         {
+  //           key: "Content-Security-Policy",
+  //           value:
+  //             "script-src 'self' https://pay.google.com 'nonce-random_nonce'",
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // },
 };

@@ -14,7 +14,6 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-//? old code
 export async function POST(
   req: Request,
   { params }: { params: { storeId: string } },
@@ -35,8 +34,7 @@ export async function POST(
 
   const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
-  // Ensure correct order of line_items based on productIds
-  productIds.forEach((productId, index) => {
+  productIds.forEach((productId: string, index: number) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
       line_items.push({
@@ -62,6 +60,7 @@ export async function POST(
       quantity: quantities[index], // Use the corresponding quantity
     })),
   };
+
   const order = await prismadb.order.create({
     data: {
       storeId: params.storeId,
@@ -84,8 +83,42 @@ export async function POST(
     },
   });
 
+  // Update product quantities after successful purchase and set isArchived status
+  for (let i = 0; i < productIds.length; i++) {
+    const productId = productIds[i];
+    const purchasedQuantity = quantities[i];
+
+    try {
+      const product = await prismadb.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (product) {
+        const remainingQuantity = Math.max(
+          product.quantity - purchasedQuantity,
+          0,
+        );
+        // console.log("Remaining Quantity:", remainingQuantity);
+
+        const isArchived = remainingQuantity === 0 ? true : false;
+        // console.log("Is Archived (checkout):", isArchived);
+
+        await prismadb.product.update({
+          where: { id: productId },
+          data: {
+            // quantity: remainingQuantity,
+            isArchived,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      // Handle the error as needed, e.g., log it, send a notification, etc.
+    }
+  }
+
   return NextResponse.json(
-    { url: session.url, line_items }, // For debugging purposes, include line_items in the response
+    { url: session.url },
     {
       headers: corsHeaders,
     },

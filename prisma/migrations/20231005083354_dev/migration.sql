@@ -40,7 +40,7 @@ CREATE TABLE "Product" (
     "categoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
-    "amount" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
     "isFeatured" BOOLEAN NOT NULL DEFAULT false,
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "sizeId" TEXT NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE "OrderItem" (
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
-    "amount" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
 
     CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
 );

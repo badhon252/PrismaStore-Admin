@@ -35,7 +35,6 @@ export async function POST(req: Request) {
 
   const addressString = addressComponents.filter((c) => c !== null).join(", ");
 
-  //? After a successful payment, update the order's isPaid status to true
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
       where: {
@@ -54,6 +53,7 @@ export async function POST(req: Request) {
         },
       },
     });
+    console.log("order", order);
 
     const productIds = order.orderItems.map(
       (orderItem) => orderItem.product.id,
