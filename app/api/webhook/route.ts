@@ -33,7 +33,9 @@ export async function POST(req: Request) {
     address?.country,
   ];
 
-  const addressString = addressComponents.filter((c) => c !== null).join(", ");
+  const addressString: string = addressComponents
+    .filter((c) => c !== null)
+    .join(", ");
 
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
@@ -53,7 +55,6 @@ export async function POST(req: Request) {
         },
       },
     });
-    console.log("order", order);
 
     const productIds = order.orderItems.map(
       (orderItem) => orderItem.product.id,
@@ -69,16 +70,15 @@ export async function POST(req: Request) {
           (orderItem) => orderItem.productId === productId,
         )?.quantity;
 
+        // Update product quantities after successful purchase and set isArchived status
         if (purchasedQuantity !== undefined) {
           const remainingQuantity = product.quantity - purchasedQuantity;
 
           const isArchived = remainingQuantity !== 0;
 
-          await prismadb.product.updateMany({
+          await prismadb.product.update({
             where: {
-              id: {
-                in: [...productIds],
-              },
+              id: productId,
             },
             data: {
               quantity: remainingQuantity,

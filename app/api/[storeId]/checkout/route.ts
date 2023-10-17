@@ -98,10 +98,8 @@ export async function POST(
           product.quantity - purchasedQuantity,
           0,
         );
-        // console.log("Remaining Quantity:", remainingQuantity);
 
         const isArchived = remainingQuantity === 0 ? true : false;
-        // console.log("Is Archived (checkout):", isArchived);
 
         await prismadb.product.update({
           where: { id: productId },
@@ -113,7 +111,6 @@ export async function POST(
       }
     } catch (error) {
       console.error("Error updating product:", error);
-      // Handle the error as needed, e.g., log it, send a notification, etc.
     }
   }
 
