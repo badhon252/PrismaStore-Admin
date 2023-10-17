@@ -33,7 +33,9 @@ export async function POST(req: Request) {
     address?.country,
   ];
 
-  const addressString = addressComponents.filter((c) => c !== null).join(", ");
+  const addressString: string = addressComponents
+    .filter((c) => c !== null)
+    .join(", ");
 
   if (event.type === "checkout.session.completed") {
     const order = await prismadb.order.update({
@@ -46,23 +48,46 @@ export async function POST(req: Request) {
         phone: session?.customer_details?.phone || "",
       },
       include: {
-        orderItems: true,
-      },
-    });
-
-    const productIds = order.orderItems.map((orderItem) => orderItem.productId);
-
-    await prismadb.product.updateMany({
-      where: {
-        id: {
-          in: [...productIds],
+        orderItems: {
+          include: {
+            product: true,
+          },
         },
       },
-      data: {
-        isArchived: true,
-      },
     });
-  }
 
+    const productIds = order.orderItems.map(
+      (orderItem) => orderItem.product.id,
+    );
+
+    for (const productId of productIds) {
+      const product = await prismadb.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (product) {
+        const purchasedQuantity = order.orderItems.find(
+          (orderItem) => orderItem.productId === productId,
+        )?.quantity;
+
+        // Update product quantities after successful purchase and set isArchived status
+        if (purchasedQuantity !== undefined) {
+          const remainingQuantity = product.quantity - purchasedQuantity;
+
+          const isArchived = remainingQuantity !== 0;
+
+          await prismadb.product.update({
+            where: {
+              id: productId,
+            },
+            data: {
+              quantity: remainingQuantity,
+              isArchived,
+            },
+          });
+        }
+      }
+    }
+  }
   return new NextResponse(null, { status: 200 });
 }
