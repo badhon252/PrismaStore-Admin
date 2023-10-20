@@ -79,7 +79,7 @@ export async function POST(req: Request) {
               id: productId,
             },
             data: {
-              // quantity: remainingQuantity,
+              quantity: remainingQuantity,
               isArchived,
             },
           });
