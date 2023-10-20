@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
 
 import prismadb from "@/lib/prismadb";
+import { Product } from "../../../../../.history/prismastore-client/types_20231002185110";
 
 export async function POST(
   req: Request,
@@ -21,8 +22,10 @@ export async function POST(
       sizeId,
       images,
       isFeatured,
-      // isArchived,
+      isArchived,
     } = body;
+
+    console.log("isArchived: ", isArchived);
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 403 });
@@ -77,7 +80,7 @@ export async function POST(
         price,
         quantity,
         isFeatured,
-        // isArchived,
+        isArchived,
         categoryId,
         colorId,
         sizeId,
@@ -119,7 +122,7 @@ export async function GET(
         colorId,
         sizeId,
         isFeatured: isFeatured ? true : undefined,
-        // isArchived: false,
+        isArchived: false,
       },
       include: {
         images: true,

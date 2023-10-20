@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { stripe } from "@/lib/stripe";
 import prismadb from "@/lib/prismadb";
+// import { is } from "date-fns/locale";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,37 +83,6 @@ export async function POST(
       orderId: order.id,
     },
   });
-
-  // Update product quantities after successful purchase and set isArchived status
-  for (let i = 0; i < productIds.length; i++) {
-    const productId = productIds[i];
-    const purchasedQuantity = quantities[i];
-
-    try {
-      const product = await prismadb.product.findUnique({
-        where: { id: productId },
-      });
-
-      if (product) {
-        const remainingQuantity = Math.max(
-          product.quantity - purchasedQuantity,
-          0,
-        );
-
-        const isArchived = remainingQuantity === 0 ? true : false;
-
-        await prismadb.product.update({
-          where: { id: productId },
-          data: {
-            // quantity: remainingQuantity,
-            isArchived,
-          },
-        });
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
-    }
-  }
 
   return NextResponse.json(
     { url: session.url },
