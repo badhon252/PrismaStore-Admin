@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
 
 import prismadb from "@/lib/prismadb";
-import { Product } from "../../../../../.history/prismastore-client/types_20231002185110";
 
 export async function POST(
   req: Request,
@@ -25,7 +24,7 @@ export async function POST(
       isArchived,
     } = body;
 
-    console.log("isArchived: ", isArchived);
+    // console.log("isArchived: ", isArchived);
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 403 });
